@@ -1,0 +1,23 @@
+model:
+  d_model: 1024
+  num_heads: 16
+  num_layers: 12
+  mlp_mult: 4
+  dropout: 0.01
+
+optim:
+  lr: 1e-5
+  warmup: 200
+  n_iters: 10000
+  eta_min_ratio: 0.01
+
+
+data:
+  batch_size: 8
+  max_len: 512
+  name: 'sentence-transformers/natural-questions'
+
+checkpoint_dir: './checkpoints/'
+
+generate:
+  topk: 5

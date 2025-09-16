@@ -1,0 +1,6 @@
+finish loading cfg.
+rank, 0, if main process, True
+Training configuration:
+  World size: 4
+  Using device: cuda:0
+  Checkpoint dir: checkpoints
