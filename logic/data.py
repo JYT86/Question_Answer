@@ -8,7 +8,7 @@ from transformers import GPT2Tokenizer, PreTrainedTokenizer
 
 import os
 
-cache_dir = os.path.expanduser('/scratch/users/nus/e1143068/QA/cache')
+cache_dir = os.path.expanduser('/home/wangbinluo/Question_Answer/data')
 
 def prepare_dataloaders_and_tokenizer(name='hotpotqa/hotpot_qa', batch_size=2, max_length=128, distributed=False):
     if name == 'hotpotqa/hotpot_qa':
