@@ -224,9 +224,42 @@ class Trainer():
 
         if self.is_main_process:
             print(f'Epoch {self.epoch_}, mean loss: {mean_loss:.3f}')
+        
+        # 验证阶段
+        if self.test_sampler:
+            self.test_sampler.set_epoch(self.epoch_)
+
+        total_perp = 0.0
+        valid_count = 0
+
+        for batch in self.test_loaders:
+            perp = self._valid_step(batch)
+            total_perp += perp
+            valid_count += 1
+
+        # 收集所有进程的困惑度
+        if self.world_size > 1:
+            total_perp_tensor = torch.tensor([total_perp]).to(self.device)
+            valid_count_tensor = torch.tensor([valid_count]).to(self.device)
+
+            dist.all_reduce(total_perp_tensor, op=dist.ReduceOp.SUM)
+            dist.all_reduce(valid_count_tensor, op=dist.ReduceOp.SUM)
+
+            mean_perplexity = total_perp_tensor.item() / valid_count_tensor.item()
+        else:
+            mean_perplexity = total_perp / valid_count
+
+        # 更新最佳模型
+        is_best = False
+        if mean_perplexity < self.best_perplexity:
+            self.best_perplexity = mean_perplexity
+            is_best = True
 
         if self.is_main_process:
-            self.save_checkpoint(self.epoch_, self.step)
+            print(f'Epoch {self.epoch_}, mean perplexity: {mean_perplexity:.3f}')
+
+            self.save_checkpoint(self.epoch_, self.step, is_best)
+
         
         self.epoch_ += 1
 
